@@ -1,0 +1,173 @@
+#===============================================================================
+#                     Dissolving polygons
+#===============================================================================
+
+#   In this script we are going to dissolve the subs outputs to reduce
+#   their size.
+
+#   It will also serve as a useful reference of how to do it 
+
+#   Usually I would do this as a loop, but the data is so large we 
+#   run out of mem even loading the three of them in - so one at 
+#   a time it is.
+
+#-------------------------------------------------------------------------------
+#                     Establishing environment
+#-------------------------------------------------------------------------------
+
+#   Create directory
+
+dir.create("D:\\testing\\dissolve")
+
+#   Set working directory
+
+setwd("D:\\testing\\dissolve")
+
+# Load a few packages. dplyr makes merges easier
+
+require("rgdal")
+require("rgeos")
+require("raster")
+require("dplyr")
+require("sf")
+library("nngeo")
+
+#   Load in data (subs 25th output)
+
+subs.25 <- read_sf("D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\POSTGIS_NGRM_subsidence_25th_1km_v3.gpkg")
+
+#-------------------------------------------------------------------------------
+#                     Running dissolve
+#-------------------------------------------------------------------------------
+
+names <- colnames(subs.25)
+
+#   Summerise
+
+dis.subs.25 <- subs.25 %>% group_by(base_subs, SBs26y20, SBs26y25, SBs26y30, SBs26y35, SBs26y40,
+                                    SBs26y45, SBs26y50, SBs26y55, SBs26y60, SBs26y65, SBs26y70,
+                                    SBs26y75, SBs26y80, SBs45y20, SBs45y25, SBs45y30, SBs45y35,
+                                    SBs45y40, SBs45y45, SBs45y50, SBs45y55, SBs45y60, SBs45y65,
+                                    SBs45y70, SBs45y75, SBs45y80, SBs60y20, SBs60y25, SBs60y30,
+                                    SBs60y35, SBs60y40, SBs60y45, SBs60y50, SBs60y55, SBs60y60,
+                                    SBs60y65, SBs60y70, SBs60y75, SBs60y80, SBs85y20, SBs85y25,    
+                                    SBs85y30, SBs85y35, SBs85y40, SBs85y45, SBs85y50, SBs85y55,
+                                    SBs85y60, SBs85y65, SBs85y70, SBs85y75, SBs85y80) %>% summarize()
+
+#   Remove any ugly holes
+
+dis.subs.25 <- st_remove_holes(dis.subs.25, max_area = 0)
+
+#   Write to disk
+
+write_sf(dis.subs.25, "D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\dissolved_sub_25th.gpkg",
+         append = FALSE)
+
+rm(subs.25, dis.subs.25)
+
+gc(full = TRUE)
+
+#   And repeat for 75th percentile
+
+subs.75 <- read_sf("D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\POSTGIS_NGRM_subsidence_75th_1km_v3.gpkg")
+
+#   Dissolve
+
+dis.subs.75 <- subs.75 %>% group_by(base_subs, SBs26y20, SBs26y25, SBs26y30, SBs26y35, SBs26y40,
+                                    SBs26y45, SBs26y50, SBs26y55, SBs26y60, SBs26y65, SBs26y70,
+                                    SBs26y75, SBs26y80, SBs45y20, SBs45y25, SBs45y30, SBs45y35,
+                                    SBs45y40, SBs45y45, SBs45y50, SBs45y55, SBs45y60, SBs45y65,
+                                    SBs45y70, SBs45y75, SBs45y80, SBs60y20, SBs60y25, SBs60y30,
+                                    SBs60y35, SBs60y40, SBs60y45, SBs60y50, SBs60y55, SBs60y60,
+                                    SBs60y65, SBs60y70, SBs60y75, SBs60y80, SBs85y20, SBs85y25,    
+                                    SBs85y30, SBs85y35, SBs85y40, SBs85y45, SBs85y50, SBs85y55,
+                                    SBs85y60, SBs85y65, SBs85y70, SBs85y75, SBs85y80) %>% summarize()
+
+#   Remove any ugly holes
+
+dis.subs.75 <- st_remove_holes(dis.subs.75, max_area = 0)
+
+#   Write to disk
+
+write_sf(dis.subs.75, "D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\dissolved_sub_75th.gpkg",
+         append = FALSE)
+
+rm(dis.subs.75, subs.75)
+
+gc(full = T)
+
+#   And repeat for 50th percentile
+
+subs.50 <- read_sf("D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\POSTGIS_NGRM_subsidence_50th_1km_v3.gpkg")
+
+#   Dissolve
+
+dis.subs.50 <- subs.50 %>% group_by(base_subs, SBs26y20, SBs26y25, SBs26y30, SBs26y35, SBs26y40,
+                                    SBs26y45, SBs26y50, SBs26y55, SBs26y60, SBs26y65, SBs26y70,
+                                    SBs26y75, SBs26y80, SBs45y20, SBs45y25, SBs45y30, SBs45y35,
+                                    SBs45y40, SBs45y45, SBs45y50, SBs45y55, SBs45y60, SBs45y65,
+                                    SBs45y70, SBs45y75, SBs45y80, SBs60y20, SBs60y25, SBs60y30,
+                                    SBs60y35, SBs60y40, SBs60y45, SBs60y50, SBs60y55, SBs60y60,
+                                    SBs60y65, SBs60y70, SBs60y75, SBs60y80, SBs85y20, SBs85y25,    
+                                    SBs85y30, SBs85y35, SBs85y40, SBs85y45, SBs85y50, SBs85y55,
+                                    SBs85y60, SBs85y65, SBs85y70, SBs85y75, SBs85y80) %>% summarize()
+
+#   Remove any ugly holes
+
+dis.subs.50 <- st_remove_holes(dis.subs.50, max_area = 0)
+
+#   Write to disk
+
+write_sf(dis.subs.50, "D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\dissolved_sub_50th.gpkg",
+         append = FALSE)
+
+rm(dis.subs.50, subs.50)
+
+gc(full = T)
+
+#   Dissolving SMD
+#-----------------
+
+#   Tim wants new maps of SMD, but from memory the damn things took ages to run and make
+
+#   To expediate that issue lets create a dissolved version of them 
+
+SMD <- read_sf("D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\NGRM_subsidence_model_10_auto_test_1km_v3.gpkg")
+
+
+#   Collecting names of subs
+
+names <- colnames(SMD)
+
+#   Indexing that to just the names we want to run the dissolve by
+
+names <- names[c(18:69, 71)]
+
+SMD <- SMD[,c(names)]
+
+#   Really annoying as I thought I could run the below dissolve by index
+#   rather than by naming all the cols - but I can't
+
+#   Now running dissolve
+
+dis.SMD <- SMD %>% group_by(MDs26y20, MDs26y25, MDs26y30, MDs26y35, MDs26y40,
+                            MDs26y45, MDs26y50, MDs26y55, MDs26y60, MDs26y65,
+                            MDs26y70, MDs26y75, MDs26y80, MDs45y20, MDs45y25,
+                            MDs45y30, MDs45y35, MDs45y40, MDs45y45, MDs45y50,
+                            MDs45y55, MDs45y60, MDs45y65, MDs45y70, MDs45y75,
+                            MDs45y80, MDs60y20, MDs60y25, MDs60y30, MDs60y35,
+                            MDs60y40, MDs60y45, MDs60y50, MDs60y55, MDs60y60,
+                            MDs60y65, MDs60y70, MDs60y75, MDs60y80, MDs85y20,
+                            MDs85y25, MDs85y30, MDs85y35, MDs85y40, MDs85y45,
+                            MDs85y50, MDs85y55, MDs85y60, MDs85y65, MDs85y70,
+                            MDs85y75, MDs85y80, SMD_base) %>% summarize()
+
+#   Remove any ugly holes
+
+dis.SMD <- st_remove_holes(dis.SMD, max_area = 0)
+
+#   Write to file (again need to launch these up to postgis, but that 
+#   takes time and ive got bits to do with these files)
+
+write_sf(dis.SMD,"D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\Current\\dissolved_smd.gpkg",
+         append = FALSE)

@@ -1,0 +1,56 @@
+#===============================================================================
+#                         rasterise polygons 
+#===============================================================================
+
+#   This script shows how to rastrise polygons (i.e shapefiles, geopackages
+#   etc)
+
+
+setwd("D:\\testing")
+
+#   Libraries
+
+library(raster)
+library(sf)
+library(rgdal)
+library(gdalUtils)
+library(stars)
+
+test <- read_sf("D:\\all_wind\\regions.shp")
+
+check0 <- st_rasterize(test[,"var_value"])
+check1 <- st_rasterize(test[,"var_value"])
+
+subs <- read_sf("D:\\Terrafirma Dropbox\\GeoData Solutions\\NGRM\\NGRM\\outputs\\NGRM_subsidence_model_slimmed_v5_1km.gpkg")
+
+names <- colnames(subs)
+names <- names[-49]
+
+test <- st_rasterize(subs[,names[1]],  st_as_stars(st_bbox(subs), nx = 30000, ny = 30000, values = NA_real_))
+
+write_stars(test, "high_res.tif",
+            chunk_size = c(10000, 10000))
+
+
+
+
+
+
+test.list <- list(test,
+                  test1,
+                  test2)
+
+filenames <- c("stack1.tif", "stack2.tif", "stack3.tif")
+
+
+for(i in 1:3){
+  
+write_stars(test.list[[i]], filenames[i])  
+  
+  rast.stack <- stack(filenames[i])
+  
+}
+
+bricked <- brick(rast.stack)
+
+writeRaster(bricked, "brick.tif")

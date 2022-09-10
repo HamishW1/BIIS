@@ -1,0 +1,85 @@
+#==============================================================================
+#               Example of raster clipping/merging using geom
+#==============================================================================
+
+#   first set directory in which all files reside
+
+setwd("D:\\testing")
+
+#   Libraries
+
+library(raster)
+library(sf)
+library(gdal)
+library(gdalUtils)
+
+#   Create list of rasters (in dir) to merge
+
+rast.list <- c('eu_dem_v11_E30N30', "eu_dem_v11_E30N40")
+
+#   Create template raster to use with extent written
+
+e <- extent("whatever your extent is")
+
+template <- raster(e)
+
+#   set projection (matching thosse to be merged)
+
+projection(template) <- "proj4 here"
+
+#   Write to file
+
+writeRaster(template, "filename.tif", format = "GTiff")
+
+#   And now merge
+
+mosiac_rasters(gdalfile = rast.list, dst_dataset = "filename.tif", of = "GTiff")
+
+#   Now to clipe read back in as well as clipping geometry
+
+cliper <- read_sf("cliper.shp")
+brit <- raster("brit_full.tif")
+
+#   Insure crs for both are the same 
+
+crs(brit) <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+cliper <- st_transform(cliper, "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+
+#   First clip by bounding box
+
+brit <- crop(brit, extent(cliper))
+
+#   Insure shapefule is compatiable for mask
+
+cliper <- st_zm(cliper)
+
+#   Now clip by mask
+
+brit <- raster::mask(brit, cliper)
+
+#   Finally write to file 
+
+writeRaster(brit, "clipped_dem.tif")
+
+
+#   Now lets have at creating hillshade from the raster
+
+#   First we need altitude and slope for r
+
+#   (this is doable but slow and painful. Advice is to use
+#   ArcPro if available instead)
+
+slope <- terrain(brit,
+                 opt = "slope",
+                 unit = "radians")
+
+aspect <- terrain(brit,
+                  opt = "aspect",
+                  unit = "radians")
+
+
+
+
+
+
+
